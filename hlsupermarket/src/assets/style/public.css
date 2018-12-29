@@ -1,0 +1,132 @@
+/*-------------------- 公共样式-------------------------------------*/
+html,body,#app,#loginbox,#menu{
+  height: 100%;
+  margin: 0;
+}
+a{
+  color:#ccc;
+  text-decoration: none;
+}
+.el-aside{
+    min-height: 100%;
+}
+/* ------------------------左侧栏-------------------------------- */
+  .el-aside {
+    background:url("../images/leftBG.png") repeat-y;
+    color: #333;
+    text-align: right;
+  }
+    /* 左边栏背景色 */
+  .el-menu{
+    background: transparent;
+    border: none;
+    width: 206px;
+    margin-left: 24px;
+    /* margin-bottom: 5px; */
+  }
+  /* 主导航栏图标隐藏 */
+  .el-submenu__icon-arrow{
+      display: none;
+  }
+  /* 子菜单激活样式 */
+  .el-submenu .is-active{
+      background: rgba(255, 255, 255, 0.3);
+      font-weight: bold;
+      color: #fff;
+  }
+  /* 子导航的宽度和之间的间隙 */
+  .el-submenu{
+    margin-bottom: 10px;
+    width: 206px;
+  }
+  /* 子导航的默认字体颜色 */
+  .el-menu-item {
+      color: #ccc;
+  }
+  /* 导航标题 */
+  .el-submenu__title{
+    background:url("../images/menuBG.png") repeat-x;
+    border-radius: 5px 0 0 5px;
+    width: 206px;
+    height: 33px;
+    line-height: 33px;
+    text-align: right;
+  }
+  /* 子导航 */
+.el-submenu .el-menu-item{
+    width: 206px;
+    padding: 0 20px;
+    height: 33px;
+    line-height: 33px;
+    border-radius: 5px 0 0 5px;
+  }
+  /* ul整体靠右*/
+.el-menu .el-menu--inline{
+    margin-left: 0;
+}
+/* 左侧头部自定义样式 */
+#loginbox{
+    font-size: 14px;
+    color: #ccc;
+    margin-right: 20px;;
+  }
+
+/* 鼠标经过和时的焦点样式 */
+.el-menu-item:hover, .el-menu-item:focus{
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/*--------------------------- 右边样式---------------------------- */
+
+
+
+ .el-header, .el-footer {
+    background-color: #f8f8f8;
+    color: #333;
+  }
+  .el-header h2{
+    margin-top: 40px;
+    margin-bottom: 0px;
+    
+  }
+  .el-header p{
+    margin-bottom: 20px;
+  }
+  .el-footer{
+    font-size: 12px;
+  }
+  .el-footer div{
+    border-top: 1px solid #ccc;
+    padding-top: 20px;
+  }
+
+  /* 中心内容擦片名称标题样式 */
+.el-card__header{ 
+  line-height: 42px;
+  height: 42px;
+  background: linear-gradient(#eee,#e5e5e5);
+  padding: 0;
+}
+  /* 中心内容擦片名称标题 */
+.el-card__header h3 {
+  margin: 0 10px;
+}
+
+  /* 弹出框提示信息 */
+.el-alert--warning{
+  margin-bottom:14px; 
+  background-color: #dbe3ff;
+  color: #4769cf;
+} 
+.el-alert__title {
+  color: #000;
+}
+
+#mainContent{
+  display: flex;
+  flex-wrap: wrap;
+}
+#mainContent>*{
+  width: 100%;
+  max-height: 400px;
+}

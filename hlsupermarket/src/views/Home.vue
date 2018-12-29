@@ -1,161 +1,114 @@
 <template>
   <el-container id="menu">
     <!-- 左边导航栏 -->
-   
-    <el-aside width="200px">
-   
-      <el-menu
-        default-active="2"
-        class="el-menu-vertical-demo"
-        @open="handleOpen"
-        @close="handleClose"
-        :unique-opened="true"
-      >
-        <!-- 导航1 -->
-      <div id="loginbox">
-        <h3>华联超市管理系统</h3>
-        <p>您好,admin</p>
-        <p><span>管理首页</span><span>退出系统</span> </p>
-      </div>
-      <el-submenu index="1">
-        <template slot="title">
-          <span>导航一</span>
-        </template>
-            <el-menu-item index="1-1">选项1</el-menu-item>
-          <el-menu-item index="1-2">选项2</el-menu-item>
-          <el-menu-item index="1-3">选项3</el-menu-item>
-          <el-menu-item index="1-4">选项4</el-menu-item>
-      </el-submenu>
-      <el-submenu index="2">
-        <template slot="title">
-          <span>导航二</span>
-        </template>
-          <el-menu-item index="1-1">选项1</el-menu-item>
-          <el-menu-item index="1-2">选项2</el-menu-item>
-          <el-menu-item index="1-3">选项3</el-menu-item>
-          <el-menu-item index="1-4">选项4</el-menu-item>
-      </el-submenu>
-      <el-submenu index="3">
-        <template slot="title">
-          <span>导航三</span>
-        </template>
-            <el-menu-item index="1-1">选项1</el-menu-item>
-          <el-menu-item index="1-2">选项2</el-menu-item>
-          <el-menu-item index="1-3">选项3</el-menu-item>
-          <el-menu-item index="1-4">选项4</el-menu-item>
-      </el-submenu>
-      <el-submenu index="4">
-        <template slot="title">
-          <span>导航四</span>
-        </template>
-            <el-menu-item index="1-1">选项1</el-menu-item>
-          <el-menu-item index="1-2">选项2</el-menu-item>
-          <el-menu-item index="1-3">选项3</el-menu-item>
-          <el-menu-item index="1-4">选项4</el-menu-item>
-      </el-submenu>
-          <el-submenu index="5">
-        <template slot="title">
-          <span>导航五</span>
-        </template>
-            <el-menu-item index="1-1">选项1</el-menu-item>
-          <el-menu-item index="1-2">选项2</el-menu-item>
-          <el-menu-item index="1-3">选项3</el-menu-item>
-          <el-menu-item index="1-4">选项4</el-menu-item>
-      </el-submenu>
-      <el-submenu index="6">
-          <template slot="title">
-            <span>导航六</span>
-          </template>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-            <el-menu-item index="1-2">选项2</el-menu-item>
-            <el-menu-item index="1-3">选项3</el-menu-item>
-            <el-menu-item index="1-4">选项4</el-menu-item>
-        </el-submenu>    <el-submenu index="7">
-          <template slot="title">
-            <span>导航七</span>
-          </template>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-            <el-menu-item index="1-2">选项2</el-menu-item>
-            <el-menu-item index="1-3">选项3</el-menu-item>
-            <el-menu-item index="1-4">选项4</el-menu-item>
-        </el-submenu>    
-        <el-submenu index="8">
-          <template slot="title">
-            <span>导航八</span>
-          </template>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-            <el-menu-item index="1-2">选项2</el-menu-item>
-            <el-menu-item index="1-3">选项3</el-menu-item>
-            <el-menu-item index="1-4">选项4</el-menu-item>
-        </el-submenu>
-      </el-menu>
-    </el-aside>
+    <LeftMenu></LeftMenu>
     <!-- 右边内容 -->
-    <el-container>
+    <el-container id="mainContent">
       <!--右边头部内容 -->
-      <el-header>
-        <h2>欢迎您 admin</h2>
-        <p>查看和管理所有分类</p>
-      </el-header>
+      <RightTop></RightTop>
       <!--右边mian中心内容 -->
-      <el-main>Main</el-main>
-      <!-- 右边脚步内容 -->
-      <el-footer>
-        &copy;Copyright 2018 华联超市管理系统
-      </el-footer>
+      <el-main>
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>
+              <h3>系统信息</h3>
+            </span>
+          </div>
+          <div class="text item">
+            <el-alert title="商品总数5，已经销售的总金额：890。库存商品总价：1235.82" type="warning" show-icon>
+            </el-alert>
+            <el-alert title="导入数据" type="warning" show-icon>
+            </el-alert>
+            <el-row :gutter="40">
+              <el-col :span="12">
+                <el-card class="box-card">
+                  <div slot="header" class="clearfix">
+                    <span>
+                      <h3>销售排行</h3>
+                    </span>
+                  </div>
+                  <div class="text item">
+                    <el-table :data="tableData" stripe style="width: 100%">
+                      <el-table-column prop="goodsname" label="商品名称">
+                      </el-table-column>
+                      <el-table-column prop="salenum" label="销量">
+                      </el-table-column>
+                    </el-table>
+                  </div>
+                </el-card>
+              </el-col>
+              <el-col :span="12" :gutter="40">
+                <el-card class="box-card">
+                  <div slot="header" class="clearfix">
+                    <span>
+                      <h3>缺货的商品</h3>
+                    </span>
+                  </div>
+                  <div class="text item">
+                    <el-table :data="tableData2" stripe style="width: 100%">
+                      <el-table-column prop="resultgoods" label="缺货的商品">
+                      </el-table-column>
+                      <el-table-column prop="result" label="库存">
+                      </el-table-column>
+                      <el-table-column prop="play" label="操作">
+                      </el-table-column>
+                    </el-table>
+                  </div>
+                </el-card>
+              </el-col>
+            </el-row>
+          </div>
+        </el-card>
+      </el-main>
+      <!-- 右边页脚内容 -->
+      <rightBottom></rightBottom>
     </el-container>
   </el-container>
 </template>
 
 <script>
+import LeftMenu from "../components/Leftmenu.vue";
+import RightTop from "../components/rightTop";
+import rightBottom from "../components/rightBottom";
+
 export default {
-  methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
-    }
+  // 库存信息的数据
+  data() {
+    return {
+      tableData: [
+        {
+          goodsname: "海飞丝洗发水",
+          salenum: "8"
+        },
+        {
+          goodsname: "茅台酒",
+          salenum: "6"
+        },
+        {
+          goodsname: "龙凤呈祥",
+          salenum: "6"
+        },
+        {
+          goodsname: "周大生",
+          salenum: "4"
+        }
+      ],
+      tableData2: [
+        {
+          resultgoods: "优乐美",
+          result: "2",
+          play: "入库"
+        }
+      ]
+    };
+  },
+  components: {
+    LeftMenu,
+    RightTop,
+    rightBottom
   }
-};
+}
 </script>
 
-<style scoped>
-  /* 导航栏样式 */
- .el-header, .el-footer {
-    background-color: #f8f8f8;
-    color: #333;
-    height: 120px !important;
-  }
-  .el-footer{
-    font-size: 12px;
-  }
-  .el-aside {
-    background-color: #353535;
-    color: #333;
-    text-align: center;
-    line-height: 200px;
-  }
-  
-  .el-main {
-    background-color: #E9EEF3;
-    color: #333;
-    text-align: center;
-  }
-  
-  body > .el-container {
-    margin-bottom: 40px;
-  }
 
-  #loginbox{
-    padding-top: 20px;
-    line-height: 0px;
-    height: 162px;
-  }
-  #loginbox p{
-    font-size: 14px;
-
-  }
-
-</style>
 
