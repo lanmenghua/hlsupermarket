@@ -91,17 +91,6 @@ export default {
 };
 </script>
 
-<style>
-.el-tag--medium {
-    height: 28px;
-    line-height: 26px;
-    border: none;
-    background: none;
-    color: #555;
-}
-
-
-</style>
 
 
 

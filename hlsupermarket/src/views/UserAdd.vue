@@ -30,10 +30,10 @@
               </el-form-item>
 
               <!-- 选择用户组 -->
-              <el-form-item label="活动区域" prop="region">
-                <el-select v-model="ruleForm2.region" placeholder="请选择活动区域">
-                  <el-option label="添加用户" value="shanghai"></el-option>
-                  <el-option label="管理用户" value="beijing"></el-option>
+              <el-form-item label="活动区域" prop="usergroup">
+                <el-select v-model="ruleForm2.usergroup" placeholder="请选择活动区域">
+                  <el-option label="超级管理员" value="超级管理员"></el-option>
+                  <el-option label="普通管理员" value="普通管理员"></el-option>
                 </el-select>
               </el-form-item>
 
@@ -71,7 +71,8 @@ export default {
       ruleForm2: {
         pass: "",
         username: "",
-        checkPass: ""
+        checkPass: "",
+        usergroup:""
       },
       rules2: {
         username: [
@@ -100,8 +101,8 @@ export default {
           },
           { validator: validatePassword, trigger: "blur" }
         ],
-        region: [
-          { required: true, message: '请选择活动区域', trigger: 'change' }
+        usergroup: [
+          { required: true, message: '请选择分组', trigger: 'change' }
         ],
       }
     };
@@ -110,8 +111,13 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert("登录成功!");
-          this.$router.push({ path: "/" });
+          //获取用户的数据用axios发送请求到后端api:http://127.0.0.1:9090
+          this.axios.post(
+            "http://127.0.0.1:9090/user/useradd",
+            this.qs.stringify(this.ruleForm2)
+          ).then(result=>{
+            console.log("服务器成功返回的结果",result)
+          })
         } else {
           console.log("error submit!!");
           return false;
@@ -129,19 +135,6 @@ export default {
   }
 };
 </script>
-<style>
-.el-input {
-  width: 40%;
-}
-.el-input--suffix{
-  width: 70%;
-}
-.el-button--primary {
-    color: #fff;
-    background-color: #76b700;
-    border-color: #76b700;
-}
-</style>
 
 
 

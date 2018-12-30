@@ -15,7 +15,25 @@
             </span>
           </div>
           <div class="text item">
-     
+            <el-table :data="tableData" style="width: 100%" :fit="true">
+              <el-table-column label="分类名称" width="180">
+                <template slot-scope="scope">
+                  <!-- 绑定数据 用户名称-->
+                  <span style="margin-left: 10px">{{ scope.row.goodsname }}</span>
+                </template>
+              </el-table-column>
+              
+              <el-table-column label="管理">
+                <template slot-scope="scope">
+
+                  <!-- 操作是删除还是 编辑 -->
+                  <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"><i class="el-icon-edit"></i></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+
+
+
           </div>
         </el-card>
       </el-main>
@@ -33,9 +51,27 @@ import rightBottom from "../components/rightBottom";
 export default {
   // 库存信息的数据
   data() {
-    return {
-    
+  return {
+      tableData: [
+        {
+          goodsname: "护肤品",
+        },
+        {
+          goodsname: "海飞丝",
+        },
+         {
+          goodsname: "飘柔",
+        }
+      ]
     };
+  },
+  methods:{
+      handleEdit(index, row) {
+        console.log(index, row);
+      },
+      handleDelete(index, row) {
+        console.log(index, row);
+      }
   },
   components: {
     LeftMenu,
@@ -44,6 +80,15 @@ export default {
   }
 }
 </script>
+<style>
+.el-table_1_column_1  {
+  width: 600px!important;
+}
+.el-table_1_column_2  {
+  width: 600px!important;
+
+}
+</style>
 
 
 
