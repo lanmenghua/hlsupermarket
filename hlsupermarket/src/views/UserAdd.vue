@@ -116,8 +116,24 @@ export default {
             "http://127.0.0.1:9090/user/useradd",
             this.qs.stringify(this.ruleForm2)
           ).then(result=>{
-            console.log("服务器成功返回的结果",result)
-          })
+            console.log("服务器成功返回的结果",result);
+             if(result.data.isOk){
+              //添加成功
+              this.$message({
+                message: result.data.msg,
+                type: 'success'
+              });
+              setTimeout(() => {
+                this.$router.push("/userlist");
+              }, 100);
+            }
+            else{
+              //添加失败
+              this.$message.error(result.data.msg);
+            }
+          }).catch(err=>{
+            console.error("服务器错误返回的信息",err);
+          });
         } else {
           console.log("error submit!!");
           return false;
@@ -128,6 +144,8 @@ export default {
       this.$refs[formName].resetFields();
     }
   },
+  // 组件实例化之后执行
+
   components: {
     LeftMenu,
     RightTop,

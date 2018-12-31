@@ -3,6 +3,8 @@ import App from './App.vue'
 import router from './router'
 import './plugins/element.js'
 import './assets/style/public.css'
+
+
 // 引入axios模块
 import axios from "axios"
 // 把axios挂在Vued的原型上，vue实例中就可以无限使用（主要是到页面组件中去使用）

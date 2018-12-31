@@ -1,0 +1,306 @@
+一、前端环境的搭建
+    1、如果是已经开始了一部分的项目根据公司的控制版本是svn还是GitHub拉取文件下来，然后进行修改
+        如果是svn就执行检出操作
+        如果是GitHub就执行克隆操作
+    2、如果是一个新的项目，应该如何进行环境的搭建
+        第一步：前端环境的搭建
+        第二步：全局安装vue脚手架（已经安装好了，以后直接用vue创建项目就好了）
+        第三步：使用vue脚手架创建项目  vue create 项目名称
+        第四步：创建的时候插件的选项设置
+                1、不使用默认创建，使用手动选项来配置
+                2、Use history mode for router 不使用历史记录方式使用路由，使用 SPA(Single-page application)单页应用程序，页面不刷新和没有历史记录
+                3、进入项目 cnpm i安装所有的依赖
+                4、运行vue服务器 npm run serve
+        第五步：安装并且elementUI框架
+            cnpm i element-ui -S(--save)
+
+            引入方式：分两种
+                1、针对vueCLI3以下的版本，在main.js中：
+                    import ElementUI from 'element-ui';
+                    import 'element-ui/lib/theme-chalk/index.css';
+
+                    使用引入的组件
+                    Vue.use(ElementUI);
+                2、针对vueCLI3.0以上的版本
+                    vue add element
+                3、测试elementUI组件是否可用，把项目运行起来
+                    如果出错就删除node_modules文件夹，然后使用cnpm i 安装依赖
+        第六步：前端页面要去后端获取数据，肯定是要像后端发请求的，一般我们使用axios模块并且配合里面的qs模块一起实现
+            1、安装axios到vue中
+                cnpm i axios --save
+            2、在main.js中引入，一次引入终生使用
+                a) import axios from "axios"
+                b) 把axios挂在vue的原型上
+                    Vue.prototype.axios = axios;
+                c)引入qs模块处理axios的post参数
+                  注意：当在下axios模块的时候，就已经包含qs模块，所以不需要单独再下载qs模块，直接使用就好
+                    import qs from "qs";
+                d)把qs挂在vue的原型上
+                    Vue.prototype.qs = qs;
+            3、在每个单页面组件中的使用方法
+                this.axios.get()   使用get方式的语法：
+                this.axios.get(
+                '/请求地址',
+                { params:{参数对象 } }
+                ) 
+                .then(function(response){ 成功的回调函数 })
+                .catch(function(err){ 错误的回调函数 });
+
+
+                this.axios.post()   使用post方式的语法：
+                this.axios.post(
+                '/请求地址',
+                //{参数对象 }                后端无法接受参数
+                this.qs.stirngify({参数对象 })    后端正常接受参数
+                ) 
+                .then(function(response){ 成功的回调函数 })
+                .catch(function(err){ 错误的回调函数 });
+            注意：每个单页面组件都是一个实例，都可以调用挂在原型删的方法，方式就是this.去调用
+
+        第七步：因为本项目中运用到了，时间戳所有还需要引入moment模块
+            cnpm i moment --save
+            相对于其他的组件来说，这个组件使用频率没有那么高，那个组件使用就在那个组件去引入
+            import moment from "moment"
+            一般使用时间戳都会配合filter使用
+            filters:{
+                foramtData(oldDate){
+                    return moment(oldDate).format("YYYY年MM月DD日");
+                }
+            }
+            在组家中是这样的
+            <!-- 日期 -->
+              <el-table-column label="添加日期" width="180">
+                <template slot-scope="scope">
+                  <i class="el-icon-time"></i>
+                  <span style="margin-left: 10px">{{ scope.row.addDate | foramtData }}</span>
+                </template>
+              </el-table-column>
+              
+    3、在前端中使用elementUI的一些总结
+            1）elementUI的标签都是以e-?这样的形式，最终经过编译以后都会以类的形式添加
+        当我们需要修改其样式的时候，只需要找到它的对应的类属性就行修改就可以了。
+            2）有时候我们会发现，当我们在单页面组件中去设置样式的时候，我们自己设置的样式
+        干不过其原有的样式，这个时候，需要注意的是，把样式抽取出来防止在asset下面新建一个
+        style文件夹或者是CSS文件夹里面，然后在main.js中通过import './assets/style/public.css'
+        的方式来引入，这样的话，后引入的优先级会高一些，自然就能干掉前面的那些老样式了
+            3）在使用elementui的时候，要注意，在每一类组件的下面都有当前类的组件的一些属性，当我们需要使用的时候，把它加在相应的标签上面
+            4）关于elementui的一些组件问题，一些功能强大的组件，包含三个部分，标签，script，style
+        一般，style样式不需要引入，标签和他的script里面的东西都是要引入的，但是有时候引入的东西不是
+        我们想要的需要修改的时候，就需要格外注意
+                1）注意标签上绑定的数据和data里面return de 对象里面的关系，要一一进行绑定
+                2）对于表单，需要验证的表单，一般会绑定return对象里面的ruleform里面的对象，ruleform
+                  里面的对象就是它定义的验证规则，如果对于一些功能更强大的表单，会在return前写方法，
+                  然后在规则里面调用。
+        *****总之对于elementUI组件的学习方法，还是要多看官网，研读官网里面组件的固定使用格式，当我们自己使用的时候，按照规则去使用就好*****
+    4、实际项目中遇到的一些问题
+        1、模板组件的抽取
+        当我们项目在完成一个首页的时候，就需要对模板组件进行抽取
+            公共组件==》components中，是多个页面都要使用的组件
+            页面组件==》views：通过路由导航来切换页面显示的组件
+        2.拿当前华联超市管理系统举例
+        1)  抽取leftMenu.vue
+        把属于此组件的模板和脚本移动到组件中
+            同样的道理rightTop.vue 
+        把属于此组件的模板和脚本移动到组件中
+            同样的道理rightBottom.vue'
+        把属于此组件的模板和脚本移动到组件中
+            
+        当这些组件抽取出去，我们引入以后，import当中的组件名就可以直接当做标签使用即可
+        <LeftMenu></LeftMenu>
+        <RightTop></RightTop>
+        <RightBottom></RightBottom>
+
+        2) 在需要使用此组件的父组件中引入，注意每个页面都要这样引入
+        
+        直接在script前引入就可以
+        import LeftMenu from '../components/leftMenu';
+        import RightTop from '../components/rightTop';
+        import RightBottom from '../components/rightBottom';
+
+        在script中引入
+        3) 父组件中注册子组件
+        components: {
+            //注册组件
+            LeftMenu;
+            rightTop;
+            rightBottom;
+        }
+
+    5、前端路由的配置
+        1）首先每个放在views中的单页面组件都应该在router.js中配置路由路径
+        比如：
+         routes: [
+            // 首页
+            {
+            path: '/',
+            name: 'home',
+            component: Home
+            },
+            // 登录界面
+            {
+            path: '/login',
+            name: 'login',
+            // route level code-splitting
+            // this generates a separate chunk (about.[hash].js) for this route
+            // which is lazy-loaded when the route is visited.
+            component: () => import(/* webpackChunkName: "about" */ './views/Login.vue')
+            },
+            // 添加用户
+            {
+            path: '/UserAdd',
+            name: 'UserAdd',
+            component: () => import('./views/UserAdd.vue')
+            },
+            // 管理用户
+            {
+            path: '/Userlist',
+            name: 'Userlist',
+            component: () => import('./views/Userlist.vue')
+            },
+            // 密码修改
+            {
+            path: '/Userpwdedit',
+            name: 'Userlist',
+            component: () => import('./views/UserpwdEdit.vue')
+            },
+            // 添加账号
+            {
+            path: '/AddAccount',
+            name: 'AddAccount',
+            component: () => import('./views/AddAccount.vue')
+            },
+            // 添加分类
+            {
+            path: '/AddClass',
+            name: 'AddClass',
+            component: () => import('./views/AddClass.vue')
+            },
+            // 添加商品
+            {
+            path: '/AddGoods',
+            name: 'AddGoods',
+            component: () => import('./views/AddGoods.vue')
+            },
+            // 添加管理组
+            {
+            path: '/AddmanagementGrop',
+            name: 'AddmanagementGrop',
+            component: () => import('./views/AddmanagementGrop.vue')
+            },
+            // 添加库存
+            {
+            path: '/AddStock',
+            name: 'AddStock',
+            component: () => import('./views/AddStock.vue')
+            },
+            // 权限管理
+            {
+            path: '/AuthorityManagement',
+            name: 'AuthorityManagement',
+            component: () => import('./views/AuthorityManagement.vue')
+            },
+            // 分类管理
+            {
+            path: '/ClassManagement',
+            name: 'ClassManagement',
+            component: () => import('./views/ClassManagement.vue')
+            },
+            // 商品管理
+            {
+            path: '/GoodsManagement',
+            name: 'GoodsManagement',
+            component: () => import('./views/GoodsManagement.vue')
+            },
+            // 商品退货
+            {
+            path: '/GoodsReturn',
+            name: 'GoodsReturn',
+            component: () => import('./views/GoodsReturn.vue')
+            },
+            // 商品出货
+            {
+            path: '/GoodsShipment',
+            name: 'GoodsShipment',
+            component: () => import('./views/GoodsShipment.vue')
+            },
+            // 进货统计
+            {
+            path: '/IncomingStatistics',
+            name: 'IncomingStatistics',
+            component: () => import('./views/IncomingStatistics.vue')
+            },
+            // 管理账号
+            {
+            path: '/ManagementAccount',
+            name: 'ManagementAccount',
+            component: () => import('./views/ManagementAccount.vue')
+            },
+            // 销售列表
+            {
+            path: '/SaleList',
+            name: 'SaleList',
+            component: () => import('./views/SaleList.vue')
+            },
+            // 销售统计
+            {
+            path: '/SalesStatistics',
+            name: 'SalesStatistics',
+            component: () => import('./views/SalesStatistics.vue')
+            },
+            // 库存管理
+            {
+            path: '/StockControl',
+            name: 'StockControl',
+            component: () => import('./views/StockControl.vue')
+            },
+            // 系统配置
+            {
+            path: '/SystemConfig',
+            name: 'SystemConfig',
+            component: () => import('./views/SystemConfig.vue')
+            },
+            // 系统信息
+            {
+            path: '/SystemMessage',
+            name: 'SystemMessage',
+            component: () => import('./views/SystemMessage.vue')
+            }
+        ]
+        2）要在对应的页面连通应该用
+        <router-link to="path"></router-link>
+
+        <el-menu 
+        :default-active="$route.path"  //注意这里属性前加冒号绑定，因为最终路由地址会变化，是动态的
+        class="el-menu-vertical-demo" 
+        @open="handleOpen" 
+        @close="handleClose" 
+        :unique-opened="true"
+        >
+            <div id="loginbox">
+            <h2>华联超市管理系统</h2>
+            <p>
+                <a href="">欢迎您，admin</a>
+            </p>
+            <p>
+                <a href="">管理系统</a>|
+                <a href="">退出系统</a>
+            </p>
+            </div>
+            <el-submenu index="1">
+            <template slot="title">
+                <span>分类管理</span>
+            </template>
+            <el-menu-item index="/ClassManagement"><router-link to="/ClassManagement"> 分类管理</router-link></el-menu-item> //这些地方路径统一
+            <el-menu-item index="/AddClass"><router-link to="/AddClass"> 添加分类</router-link></el-menu-item>
+            </el-submenu>
+
+
+
+
+
+
+    
+                    
+
+
+

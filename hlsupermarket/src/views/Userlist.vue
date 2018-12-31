@@ -17,30 +17,42 @@
           <div class="text item">
             <!-- 账号管理 -->
             <el-table :data="tableData" style="width: 100%">
-              <el-table-column label="用户名称" width="180">
+
+              <!-- 编号 -->
+              <el-table-column label="编号" width="180">
                 <template slot-scope="scope">
-                  <!-- 绑定数据 用户名称-->
-                  <span style="margin-left: 10px">{{ scope.row.username }}</span>
+                  {{ scope.row.userid }}
                 </template>
               </el-table-column>
+
+              <!-- 账号 -->
+              <el-table-column label="账号" width="180">
+                <template slot-scope="scope">
+                  {{ scope.row.username }}
+                </template>
+              </el-table-column>
+
+              <!-- 日期 -->
+              <el-table-column label="添加日期" width="180">
+                <template slot-scope="scope">
+                  <i class="el-icon-time"></i>
+                  <span style="margin-left: 10px">{{ scope.row.addDate | foramtData }}</span>
+                </template>
+              </el-table-column>
+
+              <!-- 用户组 -->
               <el-table-column label="用户组" width="180">
                 <template slot-scope="scope">
-                  <el-popover trigger="hover" placement="top">
-                    <!-- 绑定数据 用户组超级会员还是普通会员 -->
-                    <p>{{ scope.row.usergrop }}</p>
-
-                    <div slot="reference" class="name-wrapper">
-                      <el-tag size="medium">{{ scope.row.usergrop }}</el-tag>
-                    </div>
-                  </el-popover>
+                  {{ scope.row.usergroup }}
                 </template>
               </el-table-column>
-              <el-table-column label="管理">
-                <template slot-scope="scope">
 
-                  <!-- 操作是删除还是 编辑 -->
-                  <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"><i class="el-icon-edit"></i>编辑</el-button>
-                  <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)"><i class="el-icon-delete"></i>删除</el-button>
+              <el-table-column label="操作">
+                <template slot-scope="scope">
+                  <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">
+                    <i class="el-icon-edit"></i> 编辑</el-button>
+                  <el-button size="mini" type="danger" @click="handleDelete(scope.row.userid)">
+                    <i class="el-icon-delete"></i> 删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -58,37 +70,76 @@
 import LeftMenu from "../components/Leftmenu.vue";
 import RightTop from "../components/rightTop";
 import rightBottom from "../components/rightBottom";
-
+import moment from "moment";
 export default {
   // 库存信息的数据
   data() {
     return {
-      tableData: [
-        {
-          username: "王小虎",
-          usergrop: "超级会员",
-        },
-        {
-          username: "张小花",
-          usergrop: "普通会员",
-        },
-      ]
+      tableData: []
     };
   },
-  methods:{
-      handleEdit(index, row) {
-        console.log(index, row);
-      },
-      handleDelete(index, row) {
-        console.log(index, row);
-      }
+  methods: {
+    handleEdit(index, row) {
+      console.log(index, row);
+    },
+    // 删除按钮执行的方法
+    handleDelete(userid) {
+      console.log("删除行的id", userid);
+      this.axios
+        .get("http://127.0.0.1:9090/user/deluser?userid=" + userid)
+        .then(result => {
+          console.log("服务器返回的值", result);
+          result = result.data;
+          if (result.isOk) {
+            this.$message({
+              message: result.msg,
+              type: "success"
+            });
+            // 更新用户列表，如过通过路由的push方法，会全部刷新页面
+            //再发ajax请求，获取数据复制给tabledata，利用mvvm实现无刷新更新
+
+            this.axios
+              .get("http://127.0.0.1:9090/user/getusers")
+              .then(result => {
+                console.log("后端返回的数据", result.data);
+                this.tableData = result.data; //把返回的数据赋值给表格数据属性
+              })
+              .catch(err => {
+                console.error(err.message);
+              });
+          } else {
+            this.$message.error("出错了" + result.message);
+          }
+        })
+        .catch(err => {
+          this.$message.error("出错了" + err.message);
+        });
+    }
   },
   components: {
     LeftMenu,
     RightTop,
     rightBottom
+  },
+  created() {
+    this.axios
+      .get("http://127.0.0.1:9090/user/getusers")
+      .then(result => {
+        console.log("后端返回的数据", result.data);
+        this.tableData = result.data; //把返回的数据赋值给表格数据属性
+      })
+      .catch(err => {
+        console.error(err.message);
+      });
+  },
+  filters: {
+    foramtData(oldDate) {
+      return moment(oldDate).format("YYYY年MM月DD日");
+    }
   }
 };
+
+//组件实例化之后执行的钩子
 </script>
 
 
