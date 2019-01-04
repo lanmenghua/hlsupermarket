@@ -15,48 +15,67 @@
             </span>
           </div>
           <div class="text item">
-            <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="200px" class="demo-ruleForm" label-position="top" size="small">
+            <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="200px" class="demo-ruleForm" label-position="top" size="small" id="formbox">
               <!-- 选择用户组 -->
-              <el-form-item label="所属分类" prop="region">
-                <el-select v-model="ruleForm2.region" placeholder="----请选择顶级分类----">
-                  <el-option label="会员管理" value="shanghai"></el-option>
-                  <el-option label="商品管理" value="beijing"></el-option>
+              <el-form-item label="所属分类" prop="classname">
+                <el-select v-model="ruleForm2.classname" placeholder="----请选择顶级分类----">
+                  <el-option label="食品" value="食品"></el-option>
+                  <el-option label="烟酒" value="烟酒"></el-option>
+                  <el-option label="饮料" value="饮料"></el-option>
+                  <el-option label="厨具" value="厨具"></el-option>
+                  <el-option label="生鲜" value="生鲜"></el-option>
+                  <el-option label="粮油" value="粮油"></el-option>
                 </el-select>
               </el-form-item>
               <!-- 分类名称 -->
-              <el-form-item label="商品条形码" prop="goods">
-                <el-input v-model="ruleForm2.goods"></el-input>
+              <el-form-item label="商品条形码" prop="barcode">
+                <el-input v-model="ruleForm2.barcode"></el-input>
+                <el-button type="success" @click="createBarcode()" id="btn">生成条码</el-button>
               </el-form-item>
               <el-form-item label="商品名称" prop="goodsname">
                 <el-input v-model="ruleForm2.goodsname"></el-input>
               </el-form-item>
-              <el-form-item label="商品售价" prop="proprice">
-                <el-input v-model="ruleForm2.proprice"></el-input>
+              <el-form-item label="商品进价" prop="costprice">
+                <el-input v-model="ruleForm2.costprice" @blur="updatePrice()"></el-input>
+              </el-form-item>
+
+              <el-form-item label="商品售价" prop="saleprice">
+                <el-input v-model="ruleForm2.saleprice"></el-input>
               </el-form-item>
 
               <el-form-item label="市场价">
-                <el-input v-model="ruleForm2.marketPrice"></el-input>
+                <el-input v-model="ruleForm2.marketprice"></el-input>
               </el-form-item>
-              <p>默认市场价为售价的1.2倍</p>
-              <el-form-item label="商品进价:">
-                <el-input v-model="ruleForm2.originPrice"></el-input>
-              </el-form-item>
-              <el-form-item label="入库数量">
+              <el-form-item label="入库数量" prop="stocknum">
                 <el-input v-model="ruleForm2.stocknum"></el-input>
               </el-form-item>
-              <p>计量商品单位为千克</p>
-              <el-form-item label="商品重量：">
-                <el-input v-model="ruleForm2.goodsweight"></el-input>
+
+              <el-form-item label="商品重量" prop="weight">
+                <el-input v-model="ruleForm2.weight"></el-input>
               </el-form-item>
-               <el-form-item label="商品单位：">
-                <el-input v-model="ruleForm2.goodsunit"></el-input>
+
+              <el-form-item label="商品单位" prop="unit">
+                <el-input v-model="ruleForm2.unit"></el-input>
               </el-form-item>
-               <p>会员优惠价</p>
-              <el-radio v-model="radio" label="1">享受</el-radio>
-              <el-radio v-model="radio" label="2">不享受</el-radio>
-              <p>状态</p>
-              <el-radio v-model="radio1" label="3">启用</el-radio>
-              <el-radio v-model="radio1" label="4">禁用</el-radio>
+
+              <!-- 注意事项，radio要用lable选中 -->
+              <el-form-item label="会员优惠" prop="isdiscount">
+                <el-radio-group v-model="ruleForm2.isdiscount">
+                  <el-radio label="1">享受</el-radio>
+                  <el-radio label="0">不享受</el-radio>
+                </el-radio-group>
+              </el-form-item>
+
+              <el-form-item label="是否促销" prop="ispromotion">
+                <el-radio-group v-model="ruleForm2.ispromotion">
+                  <el-radio label="1">启用</el-radio>
+                  <el-radio label="0">禁用</el-radio>
+                </el-radio-group>
+              </el-form-item>
+
+              <el-form-item label="商品简介" prop="details">
+                <el-input type="textarea" rows="5" v-model="ruleForm2.details"></el-input>
+              </el-form-item>
               <!-- 提交用户 -->
               <el-form-item>
                 <el-button type="primary" @click="submitForm('ruleForm2')">添加</el-button>
@@ -82,24 +101,30 @@ export default {
   data() {
     //自定义验证2次密码是否一致
     return {
-      radio: " ",
-      radio1: " ",
       ruleForm2: {
-        name: "",
-        goods:"",
+        classname: "",
+        barcode: "",
         goodsname: "",
-        proprice: "",
-        originPrice: "",
-        marketPrice: "",
-        stocknum: "",
-        goodsweight:"",
-        goodsunit:""
+        saleprice: 0,
+        marketprice: 0,
+        costprice: 0,
+        stocknum: 0,
+        weight: "",
+        unit: "",
+        isdiscount: "1",
+        ispromotion: "0",
+        details: ""
       },
       rules2: {
-        region: [{ required: true, message: "请选择分类", trigger: "change" }],
-        name: [
-          { required: true, message: "请输入活动名称", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
+        classname: [
+          { required: true, message: "请选择分类", trigger: "change" }
+        ],
+
+        goodsname: [
+          { required: true, message: "请输入商品名称", trigger: "blur" }
+        ],
+        costprice: [
+          { required: true, message: "商品进货价必须输入", trigger: "blur" }
         ]
       }
     };
@@ -108,13 +133,68 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert("登录成功!");
-          this.$router.push({ path: "/" });
+          // 表单验证完成后发送数据给前端
+          this.axios
+            .post(
+              "http://127.0.0.1:9090/goods/add",
+              this.qs.stringify(this.ruleForm2)
+            )
+            .then(result => {
+              console.log("后端返回的成功的结果", result);
+              // 根据后端返回的结果处理前端业务逻辑
+              if (result.data.isOk) {
+                this.$message({
+                  message: "恭喜你" + result.data.msg,
+                  type: "success"
+                });
+                // 成功后弹出继续添加还是不添加，添加就留在当前页，不添加就去管理列表页面
+                //添加商品的完善，comfirm对话框的使用，确认
+                this.$confirm(result.data.msg + ", 是否继续添加?", "提示", {
+                  confirmButtonText: "确定",
+                  cancelButtonText: "取消",
+                  type: "warning"
+                })
+                  .then(() => {
+                    //确认执行的操作
+                    //重置表单
+                    this.ruleForm2= {
+                      classname: "",
+                      barcode: "",
+                      goodsname: "",
+                      saleprice: 0,
+                      marketprice: 0,
+                      costprice: 0,
+                      stocknum: 0,
+                      weight: "",
+                      unit: "",
+                      isdiscount: "1",
+                      ispromotion: "0",
+                      details: ""
+                    };
+                  })
+                  .catch(() => {
+                    //取消执行的操作
+                    this.$router.push("/GoodsManagement");
+                  });
+              } else {
+                this.$message.error("错了哦" + result.data.msg);
+              }
+            })
+            .catch(err => {
+              console.log(err.message);
+            });
         } else {
           console.log("error submit!!");
           return false;
         }
       });
+    },
+    updatePrice() {
+      this.ruleForm2.marketprice = this.ruleForm2.costprice * 5;
+      this.ruleForm2.saleprice = this.ruleForm2.marketprice * 0.9;
+    },
+    createBarcode() {
+      this.ruleForm2.barcode = new Date().getTime();
     }
   },
 
@@ -136,8 +216,8 @@ export default {
   width: 60%;
 }
 .el-form-item--small.el-form-item {
-    margin-bottom: 0;
-    width: 60%;
+  margin-bottom: 0;
+  width: 60%;
 }
 .el-button .el-button--primary .is-plain {
   margin-left: 0;
@@ -155,11 +235,22 @@ p {
   margin-bottom: 10px;
 }
 .el-radio__input.is-checked .el-radio__inner {
-    border-color: #ccc;
-    background: #ccc;
+  border-color: #ccc;
+  background: #ccc;
 }
-.el-radio__input.is-checked + .el-radio__label{
-    color: #000;
+.el-radio__input.is-checked + .el-radio__label {
+  color: #000;
+}
+#formbox {
+  position: relative;
+}
+#btn {
+  position: absolute;
+  top: 0px;
+  left: 334px;
+}
+.el-form-item .el-form-item--feedback .el-form-item--small {
+  margin-top: 10px;
 }
 </style>
 

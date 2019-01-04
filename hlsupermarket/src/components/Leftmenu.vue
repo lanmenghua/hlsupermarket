@@ -15,7 +15,7 @@
           </p>
           <p>
             <a href="">管理系统</a>|
-            <a href="">退出系统</a>
+            <a href="javascript:void(0)" @click="loginOut()">退出系统</a>
           </p>
         </div>
         <el-submenu index="1">
@@ -90,6 +90,19 @@ methods: {
     },
     handleClose(key, keyPath) {
       console.log(key, keyPath);
+    },
+    loginOut(){
+      this.axios.get("http://127.0.0.1:9090/user/loginOut").then(result=>{
+        if(result.data.isOk){
+          this.$message({
+            message:"退出成功",
+            type:"sucess"
+          });
+           this.$router.push("/login");
+        }
+      }).catch(err=>{
+        console.log(err);
+      })
     }
   }
 }

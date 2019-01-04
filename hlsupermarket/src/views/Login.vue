@@ -9,11 +9,11 @@
           <el-form-item label="账号" prop="username">
             <el-input type="text" v-model="ruleForm2.username" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="密码" prop="pass">
-            <el-input type="password" v-model="ruleForm2.pass" autocomplete="off"></el-input>
+          <el-form-item label="密码" prop="userpwd">
+            <el-input type="password" v-model="ruleForm2.userpwd" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
+            <el-button type="primary" @click="submitForm('ruleForm2')">登录</el-button>
             <el-button @click="resetForm('ruleForm2')">重置</el-button>
           </el-form-item>
         </el-form>
@@ -26,7 +26,7 @@ export default {
   data() {
     return {
       ruleForm2: {
-        pass: "",
+        userpwd: "",
         username: ""
       },
       rules2: {
@@ -39,7 +39,7 @@ export default {
             trigger: "blur"
           }
         ],
-        pass: [
+        userpwd: [
           { required: true, trigger: "blur", message: "密码必须填写" },
           {
             min: 6,
@@ -55,12 +55,38 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert("登录成功!");
-          this.$router.push({ path: "/" });
+          // alert("登录成功!");
+          // this.$router.push({ path: "/" });
+          // 让aixos携带cookie
+          this.axios.defaults.withCredentials=true;
+          //1）前端--完成表单验证后发送ajax请求到后端
+          let reqUrl = "http://127.0.0.1:9090/user/checkLogin";
+           this.axios.post(
+            reqUrl,
+            this.qs.stringify(this.ruleForm2)
+          ).then(result=>{
+            console.log("服务器成功返回的结果",result);
+             if(result.data.isOk){
+              //登录成功
+              this.$message({
+                message:"恭喜你"+ result.data.msg,
+                type: 'success'
+              });
+              this.$router.push("/");
+            }
+            else{
+              //登录失败失败
+              this.$message.error(result.data.msg);
+            }
+          }).catch(err=>{
+            console.error("服务器错误返回的信息",err);
+              this.$message.error("错了哦"+err.message);
+            
+          });
         } else {
-          console.log("error submit!!");
+          alert('× 表单验证失败!');
           return false;
-        }
+        } 
       });
     },
     resetForm(formName) {

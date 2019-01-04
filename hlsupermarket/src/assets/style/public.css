@@ -150,3 +150,11 @@ a{
   background: none;
   color: #555;
 }
+.el-button + .el-button {
+  margin-left: 0px;
+}
+.el-table_1_column_1{
+  width: 100px;
+}
+
+

@@ -267,39 +267,330 @@
             }
         ]
         2）要在对应的页面连通应该用
-        <router-link to="path"></router-link>
+            <router-link to="path"></router-link>
 
-        <el-menu 
-        :default-active="$route.path"  //注意这里属性前加冒号绑定，因为最终路由地址会变化，是动态的
-        class="el-menu-vertical-demo" 
-        @open="handleOpen" 
-        @close="handleClose" 
-        :unique-opened="true"
-        >
-            <div id="loginbox">
-            <h2>华联超市管理系统</h2>
-            <p>
-                <a href="">欢迎您，admin</a>
-            </p>
+            <el-menu 
+            :default-active="$route.path"  //注意这里属性前加冒号绑定，因为最终路由地址会变化，是动态的
+            class="el-menu-vertical-demo" 
+            @open="handleOpen" 
+            @close="handleClose" 
+            :unique-opened="true"
+            >
+                <div id="loginbox">
+                <h2>华联超市管理系统</h2>
+                <p>
+                    <a href="">欢迎您，admin</a>
+                </p>
+                <p>
+                    <a href="">管理系统</a>|
+                    <a href="">退出系统</a>
+                </p>
+                </div>
+                <el-submenu index="1">
+                <template slot="title">
+                    <span>分类管理</span>
+                </template>
+                <el-menu-item index="/ClassManagement"><router-link to="/ClassManagement"> 分类管理</router-link></el-menu-item> //这些地方路径统一
+                <el-menu-item index="/AddClass"><router-link to="/AddClass"> 添加分类</router-link></el-menu-item>
+                </el-submenu>
+
+    6、前后端数据交互，在本项目中使用到的时用nodejs和mysql数据库作为后端支撑，以后实际工作中，不会要求做到
+        准备工作:在仓库中和vue平级的目录利用vue脚手架创建nodejs的目录。nodejs需要创建数据库，所以还需要准备数据库。
+        数据库中的准备工作：
+            第1步：cnpm i mysql --save
+            第2步：在user.js中
+                //引入mssql模块
+                const mysql = require('mysql');
+            第3步：//数据库连接配置（创建数据库连接）
+                const conn = mysql.createConnection({
+                    host: 'localhost', //数据库主机名
+                    user: 'root',         //数据库账号
+                    password: 'root',    //密码
+                    database: 'hlsmms'      //使用哪个数据库
+                });
+
+                //打开数据库链接
+                conn.connect(err => {
+                    if (err) {
+                        console.log("× 数据库链接失败！", err.message);
+                    }
+                    else {
+                        console.log("√ 数据库链接成功！");
+                    }
+                });
+
+
+***************************************************重点重用的前后端代码段********************************************************
+二、使用到的组件总件
+    1、容器
+    2、卡片
+    3、组件
+    4、对话框dialog
+    5、表格table
+    6、消息提示框message
+        1）在使用ajax发送关于获取cookie或者是写入时，必须允许ajax携带cookie证书 axios.defaults.withCredentials = true;
+        2) 允许携带证书后，不能使用通配符* ,要换成指定的域名;  res.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080"); 
+        3) 允许发送cookie，布尔值设置为true ;  res.header("Access-Control-Allow-Credentials", true);
+***************************************************重点：用户登录的实现**********************************************************
+三、三个重要功能  
+    一、登录 
+        1、使用cookie技术：存储在用户客户端浏览器的认证机制，存储在在控制台中application，storage中的cookies里面，单个cook文件最大4kb,
+            一个网站最多20 个cookie，浏览器端最多存储300个，由于考虑安全性的问题，cookie中不建议存储涉及安全的信息
+        2、nodejs中如何操作cookie
+            1)创建cookie：res.cookie(name,value) //使用响应对象创建cookie
+                name：表示键的名称，value表示键的值
+            2)修改cookie：res.cookie(name,newvalue) //如果键名存在的时候，直接给新的值
+            3）删除cookie:res.clearCookie(name)    //根据键名删除cookie
+            4）读取cookie：使用请求对象读取cookie  req.cookies.name;读取指定键名称的cookie
+        3、cookie的使用场景
+            1)什么时候创建？登录成功：前端在Login.vue组件中,后端创建路由在路由/user/checkLogin创建
+                res.cookie(name,value) 
+            2)什么时候删除？退出登录：前端在leftMenu.vue组件中绑定事件点击退出登录，后端创建路由在/user/loginOut中清除cookie
+                res.clearCookie(name)
+            3)什么时候读取cookie？所有页面前端views/*.vue组件都应该读取cookie，如果cookie存在就允许访问，不存在就跳转到登录页面，后端路由读取user/getCooke
+                req.cookies.name
+        4、开始前后端的登录验证
+            1）前端--完成表单验证后直接发起ajax请求到后端http://127.0.0.1:9090/#/login
+
+            2）后端--接收账号和密码，根据账号和密码到数据库中查询,账号和密码两个条件同时成立，找到了结果就是合法的，没有找到结果就是非法的
+                select * from userinfo where username="传入账号" and userpwd = "传入的账号"，
+            3）后端--返回json结果给前端
+                如果是合法：写入cookie，返回true标识，
+                如果是非法：不写cookie，返回失败false标识
+            4）前端--根据返回的结果显示登录成功还是失败
+                登录成功就跳转到管理中心首页，失败就不跳转
+            =======================================================
+            1）前端--完成表单验证后直接发起ajax请求到后端http://127.0.0.1:9090/#/login
+                前端在Login.vue 中
+                submitForm(formName) {
+                    this.$refs[formName].validate(valid => {
+                        if (valid) {
+                        // alert("登录成功!");
+                        // this.$router.push({ path: "/" });
+                        // 让aixos携带cookie，后端才能写入进来
+                        this.axios.defaults.withCredentials=true;
+                        //1）前端--完成表单验证后发送ajax请求到后端
+                        //4）前端--根据返回的结果显示登录成功还是失败
+                        // 登录成功就跳转到管理中心首页，失败就不跳转
+                        let reqUrl = "http://127.0.0.1:9090/user/checkLogin";
+                        this.axios.post(reqUrl,this.qs.stringify(this.ruleForm2))
+                        .then(result=>{
+                            console.log("服务器成功返回的结果",result);
+                            if(result.data.isOk){
+                            //登录成功
+                            this.$message({
+                                message:"恭喜你"+ result.data.msg,
+                                type: 'success'
+                            });
+                            this.$router.push("/");
+                            }
+                            else{
+                            //登录失败失败
+                            this.$message.error(result.data.msg);
+                            }
+                        }).catch(err=>{
+                            console.error("服务器错误返回的信息",err);
+                            this.$message.error("错了哦"+err.message);
+                            
+                        });
+                        } else {
+                        alert('× 表单验证失败!');
+                        return false;
+                        } 
+                    });
+                },
+            2）后端--接收账号和密码，根据账号和密码到数据库中查询,账号和密码两个条件同时成立，找到了结果就是合法的，没有找到结果就是非法的
+                select * from userinfo where username="传入账号" and userpwd = "传入的账号"，
+                后端在user.js中配置接收前端请求的路由，后端验证登录的路由
+
+                    涉及到域必须设置的响应头，必须在通用的跨域路由user.js中设置
+                    //通用的跨域路由
+                    router.all("*", (req, res, next) => {
+                        //res.header("Access-Control-Allow-Origin","*"); //携带cookie证书时，跨域不能使用通配符*
+                        //允许携带cookie证书的域名，不能设置成通配符号，必须是指定的域名
+                        res.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080"); 
+                        //该字段是可选的，值时布尔值，表示允许发送cookie
+                        res.header("Access-Control-Allow-Credentials", true);  //值是一个布尔值，表示是否允许发送Cookie
+                        next(); //放行执行下面的路由
+                    });
+
+
+                    router.post("/checkLogin", (req, res) => {
+                        //*2）后端——接收账号和密码，根据账号和密码到数据库中查询
+                        Select * from userinfo where username=’账号’ and userpwd=’密码’
+                        账号和密码2个条件同时成立，找到了结果就是合法的，没有找到结果就非法。*/
+                        let { username, userpwd } = req.body;
+                        let sqlStr = "select * from userinfo where username=? and userpwd=?";
+                        let sqlParams = [username, userpwd];
+
+                        //执行sql语句
+                        conn.query(sqlStr, sqlParams, (err, result) => {
+                            if (err) {
+                                throw err;
+                            }
+                            else {
+                                3）后端--返回json结果给前端
+                                    如果是合法：写入cookie，返回true标识，
+                                    如果是非法：不写cookie，返回失败false标识
+                                //3）后端——返回json结果给前端,res.send(result)
+                                //[] 空数组表示验证失败   [].length>0数组非空就表示验证成功
+                                if (result.length > 0) {
+                                    // [{"userid":35,"username":"yinhonxia","userpwd":"123456","usergroup":"超级管理员","addDate":"2018-12-31T08:23:57.000Z","isLocked":0}]
+                                    //登录成功：写入cookie
+                                    res.cookie("userid", result[0].userid);
+                                    res.cookie("username", username);
+
+                                    res.send({ "isOk": true, "msg": "用户登录成功！" });
+                                }
+                                else {
+                                    //登录失败
+                                    res.send({ "isOk": false, "msg": "用户登录失败！" });
+                                }
+                            }
+                        });
+                    });
+
+            写入cookie三大波折：
+                前端设置允许携带cookie证书
+                后端允许跨域请求的时候不能设置成通配符，必须是指定允许访问的域名
+                必须设置允许发送cookie的响应头
+        5、设置全局守卫
+            // 前端构造全局路由导航守卫，负责检查cookie，有cookie证书就是合法，允许停留在管理中心，如果没有证书，就清理到登录页面
+                https://router.vuejs.org/zh/guide/advanced/navigation-guards.html#%E5%85%A8%E5%B1%80%E5%AE%88%E5%8D%AB
+                
+                全局守卫，在main.js中设置
+                router.beforeEach((to,from,next)=>{
+                // let isLogin = false;
+                axios.defaults.withCredentials=true;
+                //发起ajax到后端获取cookie，有就放行，没有就跳转到登录页面
+                axios.get("http://127.0.0.1:9090/user/getcookie").then(result=>{
+                console.log("验证的结果",result);
+                // 如果登录成或者是访问的页面是登录页面就放行，否则就跳转到登录页面
+                if(result.data.isOk || to.path=="/login"){
+                    // isLogin=true;
+                    next();
+                }else{
+                    next("/login");
+                }
+                }).catch(err=>{
+                console.log("错误了"+err.msg);
+                })
+                })
+
+            //后端接收请求
+            // 接收前端获取cookie的请求
+                router.get("/getcookie", (req, res) => {
+                    let userid = req.cookies.userid;
+                    let username = req.cookies.username;
+                    // 存在合法不存在不合法
+                    if (userid && username) {
+                        res.send({ "isOk": true });
+                    } else {
+                        res.send({ "isOk": false });
+                    }
+                })
+        
+    二、退出登录
+            前端在leftMenu中
             <p>
                 <a href="">管理系统</a>|
-                <a href="">退出系统</a>
+                <a href="javascript:void(0)" @click="loginOut()">退出系统</a>
             </p>
-            </div>
-            <el-submenu index="1">
-            <template slot="title">
-                <span>分类管理</span>
-            </template>
-            <el-menu-item index="/ClassManagement"><router-link to="/ClassManagement"> 分类管理</router-link></el-menu-item> //这些地方路径统一
-            <el-menu-item index="/AddClass"><router-link to="/AddClass"> 添加分类</router-link></el-menu-item>
-            </el-submenu>
 
 
+            方法中
+                loginOut(){
+                this.axios.get("http://127.0.0.1:9090/user/loginOut").then(result=>{
+                    if(result.data.isOk){
+                    this.$message({
+                        message:"退出成功",
+                        type:"sucess"
+                    });
+                    this.$router.push("/login");
+                    }
+                }).catch(err=>{
+                    console.log(err);
+                })
+                }
+                    
+            后端：
+            router.get("/loginOut", (req, res) => {
+                res.clearCookie("userid");
+                res.clearCookie("username");
+                res.send({ "isOk": true })
+            })
+    三、商品搜索和分页功能实现
+        4)商品搜索
+            先引入商品搜索组件：
+        ---------------------搜索组件--------------------
+            <el-form :inline="true" :model="formSearch" class="demo-form-inline">
 
+                <el-form-item label="所属分类">
+                  <el-select v-model="formSearch.classname" placeholder="请选择分类">
+                    <el-option label="烟酒" value="烟酒"></el-option>
+                    <el-option label="饮料" value="饮料"></el-option>
+                    <el-option label="食品" value="食品"></el-option>
+                    <el-option label="饮料" value="饮料"></el-option>
+                    <el-option label="粮油" value="粮油"></el-option>
+                  </el-select>
 
+                </el-form-item>
+                <el-form-item label="关键字">
+                  <el-input v-model="formSearch.keywords" placeholder="查询商品，条形码"></el-input>
+                </el-form-item>
 
-
+                <el-form-item>
+                  <el-button type="success" @click="onSearch()">查询</el-button>
+                </el-form-item>
+            </el-form>
+        ---------------------搜索功能---------------------
+        在项目中封装了一个向后端发送ajax的方法，在需要后台返回相对应的数据的时候，调用该方法
+        getGoods(){
+            this.axios.get(
+            `http://127.0.0.1:9090/goods/getgoods?classname=${this.formSearch.classname}&keywords=${this.formSearch.keywords}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`)
+            .then(result=>{
+            //把查询到的商品信息的数组对象赋值给表格数据属性
+            console.log("后端返回的结果是")
+            console.log(result)
+            this.tableData=result.data.goodsArray;
+            this.total=result.data.total;
+            }).catch(err=>{
+            console.error(err.message);
+            });
+        },
+        ---------------------分页组件---------------------
+            <el-pagination 
+                @size-change="handleSizeChange" 
+                @current-change="handleCurrentChange" 
+                :current-page="currentPage" 
+                :page-sizes="[1,2,3,5,10,20,50,100]" 
+                :page-size="pageSize" 
+                layout="total, sizes, prev, pager, next, jumper" 
+                :total="total">
+            </el-pagination>
+        ----------------------分页功能---------------------
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+                this.pageSize=val;
+                this.getGoods();
+            },
+            handleCurrentChange(val) {
+                this.currentPage=val;
+                this.getGoods();
+            },
+        5)分页组件
+    六、报表入门
     
+****************************************************全局主机地址配置************************************************************      
+四、后端服务器api统一配置
+
+                
+
+
+
+
+
+            
                     
 
 

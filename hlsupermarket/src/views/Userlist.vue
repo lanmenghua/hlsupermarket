@@ -49,7 +49,7 @@
 
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">
+                  <el-button size="mini" @click="handleEdit(scope.row.userid)">
                     <i class="el-icon-edit"></i> 编辑</el-button>
                   <el-button size="mini" type="danger" @click="handleDelete(scope.row.userid)">
                     <i class="el-icon-delete"></i> 删除</el-button>
@@ -63,6 +63,28 @@
       <!-- 右边页脚内容 -->
       <rightBottom></rightBottom>
     </el-container>
+    <el-dialog title="修改用户资料" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+      <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm" label-position="right">
+        <el-form-item label="账号" prop="username">
+          <el-input type="text" v-model="ruleForm2.username" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <el-form-item label="密码" prop="userpwd">
+          <el-input type="text" v-model="ruleForm2.userpwd" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <el-form-item label="用户组" prop="usergroup">
+          <el-select v-model="ruleForm2.usergroup" placeholder="请选择">
+            <el-option label="超级管理员" value="超级管理员"></el-option>
+            <el-option label="普通管理员" value="普通管理员"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm('ruleForm2')">确定修改</el-button>
+      </span>
+    </el-dialog>
   </el-container>
 </template>
 
@@ -75,12 +97,61 @@ export default {
   // 库存信息的数据
   data() {
     return {
-      tableData: []
+      tableData: [],
+      dialogVisible: false, //控制对话框的显示true和隐藏false
+      //数据对象
+      ruleForm2: {
+        userpwd: "",
+        username: "",
+        usergroup: "",
+        userid:""
+      },
+      //验证规则
+      rules2: {
+        username: [
+          //required: true 必填     trigger: 'blur' 失去焦点的事件触发     message: "出错信息"
+          { required: true, trigger: "blur", message: "用户名必须填写" },
+          //min: 6 最小长度   max: 18 最大长度
+          {
+            min: 6,
+            max: 18,
+            message: "用户名长度在 6 到 18 个字符",
+            trigger: "blur"
+          }
+        ],
+        userpwd: [
+          { required: true, trigger: "blur", message: "密码必须填写" },
+          {
+            min: 6,
+            max: 12,
+            message: "密码长度在 6 到 12 个字符",
+            trigger: "blur"
+          }
+        ],
+        usergroup: [
+          { required: true, trigger: "change", message: "请选择用户组" }
+        ]
+      }
     };
   },
   methods: {
-    handleEdit(index, row) {
-      console.log(index, row);
+
+    handleEdit(userid) {
+      console.log("编辑的userID", userid);
+      this.axios
+        .get("http://127.0.0.1:9090/user/getuserbyid?userid=" + userid)
+        .then(oldUserData => {
+          console.log("服务器返回的旧的数据", oldUserData.data[0]);
+          // 把接收到的数据复制给表单
+          this.ruleForm2 = oldUserData.data[0];
+          // console.log(oldUserData)
+          // 准备模态框
+          this.dialogVisible = true; //显示对话框
+          // 使用双向数据绑定回填数据
+        })
+        .catch(err => {
+          this.$message.error("出错了" + err.message);
+        });
     },
     // 删除按钮执行的方法
     handleDelete(userid) {
@@ -114,6 +185,51 @@ export default {
         .catch(err => {
           this.$message.error("出错了" + err.message);
         });
+    },
+    // 模态框的方法
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.axios
+            .post(
+              "http://127.0.0.1:9090/user/usersave",
+                this.qs.stringify(this.ruleForm2)
+            )
+            .then(result => {
+              if (result.data.isOk) {
+                this.$message({
+                  message: result.msg,
+                  type: "success"
+                });
+                this.dialogVisible = false; 
+                this.axios
+                  .get("http://127.0.0.1:9090/user/getusers")
+                  .then(result => {
+                    console.log("后端返回的数据", result.data);
+                    this.tableData = result.data; //把返回的数据赋值给表格数据属性
+                  })
+                  .catch(err => {
+                    console.error(err.message);
+                  });
+              } else {
+                this.$message.error("出错了" + err.message);
+              }
+            })
+            .catch(err => {
+              this.$message.error("出错了" + err.message);
+            });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
     }
   },
   components: {
