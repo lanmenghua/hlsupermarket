@@ -113,7 +113,7 @@ export default {
         if (valid) {
           //获取用户的数据用axios发送请求到后端api:http://127.0.0.1:9090
           this.axios.post(
-            "http://127.0.0.1:9090/user/useradd",
+            this.apiHost+"/user/useradd",
             this.qs.stringify(this.ruleForm2)
           ).then(result=>{
             console.log("服务器成功返回的结果",result);

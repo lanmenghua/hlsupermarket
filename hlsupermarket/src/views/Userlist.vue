@@ -139,7 +139,7 @@ export default {
     handleEdit(userid) {
       console.log("编辑的userID", userid);
       this.axios
-        .get("http://127.0.0.1:9090/user/getuserbyid?userid=" + userid)
+        .get(this.apiHost+"/user/getuserbyid?userid=" + userid)
         .then(oldUserData => {
           console.log("服务器返回的旧的数据", oldUserData.data[0]);
           // 把接收到的数据复制给表单
@@ -157,7 +157,7 @@ export default {
     handleDelete(userid) {
       console.log("删除行的id", userid);
       this.axios
-        .get("http://127.0.0.1:9090/user/deluser?userid=" + userid)
+        .get(this.apiHost+"/user/deluser?userid=" + userid)
         .then(result => {
           console.log("服务器返回的值", result);
           result = result.data;
@@ -170,7 +170,7 @@ export default {
             //再发ajax请求，获取数据复制给tabledata，利用mvvm实现无刷新更新
 
             this.axios
-              .get("http://127.0.0.1:9090/user/getusers")
+              .get(this.apiHost+"/user/getusers")
               .then(result => {
                 console.log("后端返回的数据", result.data);
                 this.tableData = result.data; //把返回的数据赋值给表格数据属性
@@ -199,7 +199,7 @@ export default {
         if (valid) {
           this.axios
             .post(
-              "http://127.0.0.1:9090/user/usersave",
+              this.apiHost+"/user/usersave",
                 this.qs.stringify(this.ruleForm2)
             )
             .then(result => {
@@ -210,7 +210,7 @@ export default {
                 });
                 this.dialogVisible = false; 
                 this.axios
-                  .get("http://127.0.0.1:9090/user/getusers")
+                  .get(this.apiHost+"/user/getusers")
                   .then(result => {
                     console.log("后端返回的数据", result.data);
                     this.tableData = result.data; //把返回的数据赋值给表格数据属性
@@ -239,7 +239,7 @@ export default {
   },
   created() {
     this.axios
-      .get("http://127.0.0.1:9090/user/getusers")
+      .get(this.apiHost+"/user/getusers")
       .then(result => {
         console.log("后端返回的数据", result.data);
         this.tableData = result.data; //把返回的数据赋值给表格数据属性

@@ -136,7 +136,7 @@ export default {
           // 表单验证完成后发送数据给前端
           this.axios
             .post(
-              "http://127.0.0.1:9090/goods/add",
+              this.apiHost+"/goods/add",
               this.qs.stringify(this.ruleForm2)
             )
             .then(result => {

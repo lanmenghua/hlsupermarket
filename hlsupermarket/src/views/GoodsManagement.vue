@@ -135,7 +135,7 @@ export default {
   methods: {
   getGoods(){
         this.axios.get(
-         `http://127.0.0.1:9090/goods/getgoods?classname=${this.formSearch.classname}&keywords=${this.formSearch.keywords}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`)
+         this.apiHost+`/goods/getgoods?classname=${this.formSearch.classname}&keywords=${this.formSearch.keywords}&currentPage=${this.currentPage}&pageSize=${this.pageSize}`)
          .then(result=>{
           //把查询到的商品信息的数组对象赋值给表格数据属性
         console.log("后端返回的结果是")

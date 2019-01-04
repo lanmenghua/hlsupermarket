@@ -13,13 +13,15 @@ Vue.prototype.axios=axios;
 import qs from "qs"
 //把qs挂在Vue的原型上
 Vue.prototype.qs=qs;
-
+// 配置后端服务器
+let serverApiHost="http://127.0.0.1:9090"
+Vue.prototype.apiHost=serverApiHost;
 // 构造全局守卫
 router.beforeEach((to,from,next)=>{
   // let isLogin = false;
   // 依然让ajax携带证书
   axios.defaults.withCredentials=true;
-  axios.get("http://127.0.0.1:9090/user/getcookie").then(result=>{
+  axios.get(serverApiHost+"/user/getcookie").then(result=>{
   console.log("验证的结果",result);
   // 如果登录成或者是访问的页面是登录页面就放行，否则就跳转到登录页面
   if(result.data.isOk || to.path=="/login"){
